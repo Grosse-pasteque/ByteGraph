@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Graph Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        #sidebar {
+            position: absolute;
+            right: 0;
+            height: 100vh;
+            width: 220px;
+            background: #f1f1f1;
+            border-left: 1px solid #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        #graph {
+            overflow: auto;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        svg text {
+            user-select: none;
+            pointer-events: none;
+        }
+        #tooltip {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #aaa;
+            padding: 5px 8px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            display: none;
+            z-index: 1000;
+            max-width: 400px;
+            pointer-events: none;
+        }
+        #main {
+            width: 100%;
+        }
+    </style>
+    <script src="./viz.js" type="application/javascript"></script>
+    <script src="./full.render.js" type="application/javascript"></script>
+</head>
+<body>
+    <div id="main">
+        <div id="graph"></div>
+        <div id="tooltip"></div>
+    </div>
+    <div id="sidebar">
+        <select>
+            <option>wss://idk</option>
+            <option>ws://idk2</option>
+        </select>
+        <button id="graph-mode">SEND</button>
+        <button id="graph-load">Load</button>
+    </div>
+    <script src="panel.js"></script>
+</body>
+</html>

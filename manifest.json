@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Byte Graph",
+  "version": "1.0",
+  "description": "Visualize active sockets and how they communicate with each others.",
+  "devtools_page": "devtools.html",
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "icons": {
+    "128": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["injector.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Interceptor"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["interceptor.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
