@@ -102,22 +102,13 @@
         return idx != -1 ? idx : fileRegistry.push(file) - 1;
     }
 
-    function extractLocation(stack) {
-        const lines = stack.split('\n').slice(2);
-        let location = "";
-        for (let line of lines) {
-            if (location.length) location += ":";
-            if (line.includes('<anonymous>')) location += "0:0:0";
-            line = line.split('(');
-            line = line.length == 2 ? line[1].slice(0, -1) : line[0].slice(7);
-            line = line.split(':');
-            const colNum = parseInt(line.pop());
-            const lineNum = parseInt(line.pop());
-            const file = line.join(':');
-            if (!file.startsWith('http')) continue;
-            location += getFileIndex(file) + ":" + lineNum + ":" + colNum;
-        }
-        return location;
+    Error.prepareStackTrace = (_, stack) => stack;
+
+    function getCaller() {
+        const e = {};
+        Error.captureStackTrace(e, getCaller);
+        const frame = e.stack[1];
+        return getFileIndex(frame.getFileName()) + ":" + frame.getLineNumber() + ":" + frame.getColumnNumber();
     }
 
     for (const [overwrite, byteSize] of Object.entries(overwrites)) {
@@ -134,7 +125,7 @@
         DataView.prototype[getterName] = function(pos, endian = false) {
             const value = originalGetter.call(this, pos, endian);
             if (recvEnabled && (this.buffer._pos ||= 0) === pos) {
-                (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, extractLocation(new Error().stack)]);
+                (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, getCaller()]);
                 this.buffer._pos += byteSize;
             }
             return value;
@@ -142,7 +133,7 @@
 
         DataView.prototype[setterName] = function(pos, value, endian = false) {
             if (sendEnabled && (this.buffer._pos ||= 0) === pos) {
-                (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, extractLocation(new Error().stack)]);
+                (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, getCaller()]);
                 this.buffer._pos += byteSize;
             }
             return originalSetter.call(this, pos, value, endian);
