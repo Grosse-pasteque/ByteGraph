@@ -107,8 +107,12 @@
     function getCaller() {
         const e = {};
         Error.captureStackTrace(e, getCaller);
-        const frame = e.stack[1];
-        return getFileIndex(frame.getFileName()) + ":" + frame.getLineNumber() + ":" + frame.getColumnNumber();
+        let location = '';
+        for (const frame of e.stack) {
+            if (location.length) location += ':';
+            location += getFileIndex(frame.getFileName()) + ':' + frame.getPosition();
+        }
+        return location;
     }
 
     for (const [overwrite, byteSize] of Object.entries(overwrites)) {
