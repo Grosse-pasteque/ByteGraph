@@ -104,7 +104,7 @@
     window.fileRegistry = fileRegistry;
 
     function getFileIndex(file) {
-        const idx = fileRegistry.indexOf(file);
+        const idx = file ? fileRegistry.indexOf(file) : 0;
         return idx !== -1 ? idx : fileRegistry.push(file) - 1;
     }
 
