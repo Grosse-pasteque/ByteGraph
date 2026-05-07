@@ -143,4 +143,11 @@
             return originalSetter.call(this, pos, value, endian);
         };
     }
+
+    window.addEventListener('message', event => {
+        const { type, data } = event.data;
+        switch (type) {}
+    });
+
+    // window.postMessage({ from: 'ByteGraph', type, data }, '*');
 })();
