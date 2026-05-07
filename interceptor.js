@@ -69,7 +69,7 @@
                 if (
                     !recvEnabled ||
                     this.binaryType !== "arraybuffer" ||
-                    udata[0] === 0x78 && udata[1] === 0x9C
+                    udata[0] === 0x78 && udata[1] === 0x9C // zlib compressed
                 ) this.removeEventListener('message', handler);
                 try {
                     JSON.parse([...udata].map(x => String.fromCharCode(x)).join(''));
@@ -79,7 +79,7 @@
                     message.data._struct = [];
                     message.data._pos = 0;
                 }
-                this.tree.recv.push(message.data._struct);
+                this.tree.recv.push(message.data._struct); // NOTE: how to know when buffer read is done ? then send to background
             };
             this.addEventListener("message", handler);
         }
@@ -87,8 +87,14 @@
         send(data) {
             const buf = data instanceof DataView ? data.buffer : data;
             if (this.tree.send.length >= LIMIT) sendEnabled = false;
-            else if (buf._struct && buf._pos === buf.byteLength)
+            else if (buf._struct && buf._pos === buf.byteLength) {
                 this.tree.send.push(buf._struct);
+                window.postMessage({
+                    from: 'ByteGraph',
+                    type: 'send',
+                    data: buf._struct
+                }, '*');
+            }
             return originalSend.call(this, data);
         }
     }
@@ -99,10 +105,11 @@
 
     function getFileIndex(file) {
         const idx = fileRegistry.indexOf(file);
-        return idx != -1 ? idx : fileRegistry.push(file) - 1;
+        return idx !== -1 ? idx : fileRegistry.push(file) - 1;
     }
 
     Error.prepareStackTrace = (_, stack) => stack;
+    Error.stackTraceLimit = 2;
 
     function getCaller() {
         const e = {};
@@ -148,6 +155,4 @@
         const { type, data } = event.data;
         switch (type) {}
     });
-
-    // window.postMessage({ from: 'ByteGraph', type, data }, '*');
 })();
