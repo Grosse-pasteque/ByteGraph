@@ -133,11 +133,17 @@
             return isSingle ? overwrite : overwrite + (endian ? 'LE' : 'BE');
         }
 
+        // could directly create graph here
         DataView.prototype[getterName] = function(pos, endian = false) {
             const value = originalGetter.call(this, pos, endian);
             if (recvEnabled && (this.buffer._pos ||= 0) === pos) {
                 (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, getCaller()]);
-                this.buffer._pos += byteSize;
+                if ((this.buffer._pos += byteSize) === this.byteLength)
+                    window.postMessage({
+                        from: 'ByteGraph',
+                        type: 'recv',
+                        data: this.buffer._struct
+                    }, '*');
             }
             return value;
         };
