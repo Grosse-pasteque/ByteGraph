@@ -1,4 +1,6 @@
 (function() {
+    const secret = document.currentScript.dataset.secret;
+
     let sendEnabled = true, recvEnabled = true;
     const LIMIT = 100;
 
@@ -90,7 +92,7 @@
             else if (buf._struct && buf._pos === buf.byteLength) {
                 this.tree.send.push(buf._struct);
                 window.postMessage({
-                    from: 'ByteGraph',
+                    secret,
                     type: 'send',
                     data: buf._struct
                 }, '*');
@@ -140,7 +142,7 @@
                 (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, getCaller()]);
                 if ((this.buffer._pos += byteSize) === this.byteLength)
                     window.postMessage({
-                        from: 'ByteGraph',
+                        secret,
                         type: 'recv',
                         data: this.buffer._struct
                     }, '*');
