@@ -17,5 +17,5 @@ chrome.runtime.onConnect.addListener(port => {
         console.log("from background:", msg);
     });
 
-    window.sendToDev = data => port.postMessage({ type: "hello", data });
+    globalThis.sendToDev = data => port.postMessage({ type: "hello", data });
 });

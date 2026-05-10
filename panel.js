@@ -7,7 +7,7 @@ const dot = `digraph G {
 
 let hideToolTipId;
 
-const render = async () => {
+const render = async graph => {
     const viz = new Viz();
     const svg = await viz.renderSVGElement(dot);
 
@@ -70,7 +70,7 @@ const render = async () => {
     svg.querySelectorAll("g.node").forEach(node => {
         node.style.cursor = "pointer";
         node.addEventListener("click", e => {
-            const tooltip = document.getElementById("tooltip");
+            const tooltip = graph.querySelector(".tooltip");
             tooltip.textContent = "Trace:\n" + node.previousSibling.previousSibling.data.trim();
             tooltip.style.left = e.pageX + 10 + "px";
             tooltip.style.top = e.pageY + 10 + "px";
@@ -89,15 +89,9 @@ function hideToolTip() {
     tooltip.style.display = "none";
 }
 
-render().catch(console.error);
-
-
-let graphMode = 'recv';
-document.getElementById("graph").textContent = "Graph Viewer Ready.";
-document.getElementById("graph-mode").addEventListener('click', function() {
-    this.innerText = (graphMode = graphMode === 'send' ? 'recv' : 'send').toUpperCase();
-});
-document.getElementById('graph-load').addEventListener('click', function() {});
+const [graphSend, graphRecv] = document.querySelectorAll('.graph');
+render(graphSend).catch(console.error);
+render(graphRecv).catch(console.error);
 
 let tabId;
 window.initPanel = () => {
