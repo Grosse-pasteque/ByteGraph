@@ -1,8 +1,7 @@
 (function() {
     const secret = document.currentScript.dataset.secret;
 
-    let sendEnabled = true, recvEnabled = true;
-    const LIMIT = 100;
+    let enabled = false;
 
     let count = 0;
     const Methods = {
@@ -45,63 +44,6 @@
         "BigUint64": 8
     };
 
-    const trees = new Map;
-    window.trees = trees;
-
-    const originalSend = WebSocket.prototype.send;
-
-    window.WebSocket = class extends WebSocket {
-        constructor(...args) {
-            super(...args);
-            this.tree = {
-                send: [],
-                recv: [],
-                toJSON: function() {
-                    return JSON.stringify({
-                        recv: this.recv,
-                        send: this.send
-                    });
-                }
-            };
-            trees.set(this, this.tree);
-            const handler = message => {
-                if (!recvEnabled) return;
-                if (this.tree.recv.length >= LIMIT) recvEnabled = false;
-                const udata = new Uint8Array(message.data);
-                if (
-                    !recvEnabled ||
-                    this.binaryType !== "arraybuffer" ||
-                    udata[0] === 0x78 && udata[1] === 0x9C // zlib compressed
-                ) this.removeEventListener('message', handler);
-                try {
-                    JSON.parse([...udata].map(x => String.fromCharCode(x)).join(''));
-                    return this.removeEventListener('message', handler);
-                } catch {}
-                if (!message.data._struct) {
-                    message.data._struct = [];
-                    message.data._pos = 0;
-                }
-                this.tree.recv.push(message.data._struct); // NOTE: how to know when buffer read is done ? then send to background
-            };
-            this.addEventListener("message", handler);
-        }
-
-        send(data) {
-            const buf = data instanceof DataView ? data.buffer : data;
-            if (this.tree.send.length >= LIMIT) sendEnabled = false;
-            else if (buf._struct && buf._pos === buf.byteLength) {
-                this.tree.send.push(buf._struct);
-                window.postMessage({
-                    secret,
-                    type: 'send',
-                    data: buf._struct
-                }, '*');
-            }
-            return originalSend.call(this, data);
-        }
-    }
-
-
     const fileRegistry = ['<anonymous>'];
     window.fileRegistry = fileRegistry;
 
@@ -138,7 +80,7 @@
         // could directly create graph here
         DataView.prototype[getterName] = function(pos, endian = false) {
             const value = originalGetter.call(this, pos, endian);
-            if (recvEnabled && (this.buffer._pos ||= 0) === pos) {
+            if (enabled && (this.buffer._pos ||= 0) === pos) {
                 (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, getCaller()]);
                 if ((this.buffer._pos += byteSize) === this.byteLength)
                     window.postMessage({
@@ -151,16 +93,25 @@
         };
 
         DataView.prototype[setterName] = function(pos, value, endian = false) {
-            if (sendEnabled && (this.buffer._pos ||= 0) === pos) {
+            if (enabled && (this.buffer._pos ||= 0) === pos) {
                 (this.buffer._struct ||= []).push([Methods[methodKey(endian)], value, getCaller()]);
-                this.buffer._pos += byteSize;
+                if ((this.buffer._pos += byteSize) === this.byteLength)
+                    window.postMessage({
+                        secret,
+                        type: 'send',
+                        data: this.buffer._struct
+                    }, '*');
             }
             return originalSetter.call(this, pos, value, endian);
         };
     }
 
     window.addEventListener('message', event => {
-        const { type, data } = event.data;
-        switch (type) {}
+        const { type, data = null } = event.data;
+        switch (type) {
+            case 'TOGGLE_RECORD':
+                enabled = true;
+                break;
+        }
     });
 })();
