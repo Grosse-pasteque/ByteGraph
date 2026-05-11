@@ -53,7 +53,7 @@
     }
 
     Error.prepareStackTrace = (_, stack) => stack;
-    Error.stackTraceLimit = 2;
+    // Error.stackTraceLimit = 2;
 
     function getCaller() {
         const e = {};
@@ -61,7 +61,8 @@
         let location = '';
         for (const frame of e.stack) {
             if (location.length) location += ':';
-            location += getFileIndex(frame.getFileName()) + ':' + frame.getPosition();
+            // location += getFileIndex(frame.getFileName()) + ':' + frame.getPosition();
+            location += getFileIndex(frame.getFileName()) + ':' + frame.getLineNumber() + ":" + frame.getColumnNumber();
         }
         return location;
     }
