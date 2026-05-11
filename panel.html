@@ -7,27 +7,19 @@
         body {
             margin: 0;
             padding: 0;
-            display: flex;
             height: 100vh;
             font-family: sans-serif;
             overflow: hidden;
         }
         #sidebar {
-            position: absolute;
-            right: 0;
-            height: 100vh;
-            width: 220px;
-            background: #f1f1f1;
-            border-left: 1px solid #ccc;
+            width: 100vw;
+            border-bottom: 1px solid #ccc;
             padding: 10px;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
         .graph {
             overflow: hidden;
-            height: 100vh;
+            height: 100%;
         }
         svg {
             width: 100%;
@@ -51,25 +43,31 @@
             pointer-events: none;
         }
         .main {
-            width: calc((100vw - 220px) / 2);
+            width: 50vw;
+        }
+        center {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
         }
     </style>
     <script src="./viz.js" type="application/javascript"></script>
     <script src="./full.render.js" type="application/javascript"></script>
 </head>
 <body>
-    <div class="main">
-        <center>SEND</center>
-        <div class="graph"></div>
-        <div class="tooltip"></div>
-    </div>
-    <div class="main" style="border-left: 1px solid #ccc;">
-        <center>RECV</center>
-        <div class="graph"></div>
-        <div class="tooltip"></div>
-    </div>
     <div id="sidebar">
         <button id="graph-record">Record</button>
+    </div>
+    <div style="display: flex; height: 100%;">
+        <div class="main">
+            <center>SEND</center>
+            <div class="graph"></div>
+            <div class="tooltip"></div>
+        </div>
+        <div class="main" style="border-left: 1px solid #ccc;">
+            <center>RECV</center>
+            <div class="graph"></div>
+            <div class="tooltip"></div>
+        </div>
     </div>
     <script src="panel.js"></script>
 </body>

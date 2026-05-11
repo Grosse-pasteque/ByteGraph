@@ -97,7 +97,7 @@ let tabId;
 window.initPanel = () => {
     tabId = chrome.devtools.inspectedWindow.tabId;
 
-    const port = chrome.runtime.connect({ name: "devtools-panel" });
+    const port = chrome.runtime.connect();
     window.sendToBack = data => port.postMessage({ type: "hello", tabId, data });
     port.onMessage.addListener(msg => {
         console.log("from background:", msg);
