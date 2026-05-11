@@ -85,7 +85,7 @@
                 if ((this.buffer._pos += byteSize) === this.byteLength)
                     window.postMessage({
                         secret,
-                        type: 'recv',
+                        type: 'RECV',
                         data: this.buffer._struct
                     }, '*');
             }
@@ -98,7 +98,7 @@
                 if ((this.buffer._pos += byteSize) === this.byteLength)
                     window.postMessage({
                         secret,
-                        type: 'send',
+                        type: 'SEND',
                         data: this.buffer._struct
                     }, '*');
             }

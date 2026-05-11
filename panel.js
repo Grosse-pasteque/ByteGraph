@@ -93,13 +93,14 @@ const [graphSend, graphRecv] = document.querySelectorAll('.graph');
 render(graphSend).catch(console.error);
 render(graphRecv).catch(console.error);
 
-let tabId;
-window.initPanel = () => {
-    tabId = chrome.devtools.inspectedWindow.tabId;
-
-    const port = chrome.runtime.connect();
-    window.sendToBack = data => port.postMessage({ type: "hello", tabId, data });
-    port.onMessage.addListener(msg => {
-        console.log("from background:", msg);
-    });
+let enabled = false;
+record.onclick = () => {
+    record.innerText = (enabled = !enabled) ? 'Stop' : 'Start';
+    port.postMessage({ type: 'TOGGLE_RECORD', tabId });
 };
+
+const tabId = chrome.devtools.inspectedWindow.tabId;
+const port = chrome.runtime.connect({ name: 'panel' });
+port.onMessage.addListener(msg => {
+    console.log('from content', msg);
+});

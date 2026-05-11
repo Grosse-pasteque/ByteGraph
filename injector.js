@@ -5,10 +5,9 @@ script.dataset.secret = secret;
 script.onload = () => script.remove();
 (document.head || document.documentElement).appendChild(script);
 
-chrome.runtime.connect();
-window.addEventListener("message", async event => {
+const port = chrome.runtime.connect({ name: 'content' });
+port.onMessage.addListener(message => window.postMessage(message));
+window.addEventListener('message', event => {
     if (event.source !== window || event.data?.secret === secret) return;
-    const response = await chrome.runtime.sendMessage(event.data);
-    if (response) window.postMessage(response);
+    port.postMessage(event.data);
 });
-chrome.runtime.onMessage.addListener(msg => window.postMessage(msg));
