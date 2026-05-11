@@ -93,7 +93,7 @@ const [graphSend, graphRecv] = document.querySelectorAll('.graph');
 render(graphSend).catch(console.error);
 render(graphRecv).catch(console.error);
 
-let enabled = false;
+let enabled = false, recvCount = 0, sentCount = 0;
 record.onclick = () => {
     record.innerText = (enabled = !enabled) ? 'Stop' : 'Start';
     port.postMessage({ type: 'TOGGLE_RECORD', tabId });
@@ -101,6 +101,13 @@ record.onclick = () => {
 
 const tabId = chrome.devtools.inspectedWindow.tabId;
 const port = chrome.runtime.connect({ name: 'panel' });
-port.onMessage.addListener(msg => {
-    console.log('from content', msg);
+port.onMessage.addListener(message => {
+    switch (message.type) {
+        case 'SENT':
+            sent.innerText = ++sentCount;
+            break;
+        case 'RECV':
+            recv.innerText = ++recvCount;
+            break;
+    }
 });

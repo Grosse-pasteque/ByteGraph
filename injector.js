@@ -8,6 +8,6 @@ script.onload = () => script.remove();
 const port = chrome.runtime.connect({ name: 'content' });
 port.onMessage.addListener(message => window.postMessage(message));
 window.addEventListener('message', event => {
-    if (event.source !== window || event.data?.secret === secret) return;
+    if (event.source !== window || event.data?.secret !== secret) return;
     port.postMessage(event.data);
 });

@@ -98,7 +98,7 @@
                 if ((this.buffer._pos += byteSize) === this.byteLength)
                     window.postMessage({
                         secret,
-                        type: 'SEND',
+                        type: 'SENT',
                         data: this.buffer._struct
                     }, '*');
             }
@@ -110,7 +110,7 @@
         const { type, data = null } = event.data;
         switch (type) {
             case 'TOGGLE_RECORD':
-                enabled = true;
+                enabled = !enabled;
                 break;
         }
     });
